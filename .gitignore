@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea/
+.vscode
+.DS_Store
+build
+dist
+*.pyr
+wheels
+.vscode/settings.json
+.ipynb_checkpoints
+disco.egg-info
