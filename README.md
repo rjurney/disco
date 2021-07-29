@@ -6,14 +6,47 @@ Unce upon a time, in a land far, far away, there was a package called [`cleanco`
 
 #### Why disco?
 
-Parsing companies through heuristics and keyword matching is like disco dancing. It was cool 30 years ago but when nobody is watching everybody does it. And also it comes from `deep DIScovery COmpany parsing` or `Deep dIScovery COmpany parsing`.
+Parsing companies through heuristics and keyword matching is like disco dancing. It was cool 30 years ago but when nobody is watching everybody does it. And also it comes from `deep DIScovery COmpany parsing` or `Deep dIScovery COmpany parsing`. And it was already damn confusing to distinguish the custom and original package, so it needed the rename.
 
 ### Goal
 
 As of now, `disco` is a heavily enhanced `cleanco` that we want to keep in private (for now). There is a lot of suboptimal parts but we can fix that once it starts being an issue.
 
+### Performance
+
+As of July 29, `disco` is able to identify 37.62 % more company patterns in a list of 50k randomly sampled company names (sampled from Sayari) when compared to `cleanco`. Specifically, `disco` identifies 20375 patterns while `cleanco` identifies 14805.
+
+Sample of companies which can be identified by `disco` and not by `cleanco`. Chinese support has obviously a big influence.
+
+```
+ '上海聪优贸易有限公司',
+ 'NEWCOS, společnost s ručením omezeným',
+ 'MONNARI TRADE STYLE SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ',
+ '烟台实覃商贸有限公司',
+ '广州曜业科技有限公司',
+ '三门峡众亿实业有限公司',
+ 'COVACI OANA ÎNTREPRINDERE INDIVIDUALĂ',
+ '青岛金元素装饰设计工程有限公司',
+ '山东安驰钢铁贸易有限公司',
+ '深圳市勇搏会体育文化推广有限公司',
+ '乐山市黄光喜商贸有限公司',
+ '重庆笛远投资有限公司',
+ '南通基石信息技术有限公司',
+ '霍尔果斯三淑文化传媒有限公司',
+```
+
+_Note: I will add performance results also for Open Corporates soon._
+
+### Space for improvement
+
+There is still space for improvement for Cyrillic names and `disco` should be improved based on analysis of Sayari data. The previous enhancement iteration was based on Open Corporates data.
+
 ---
-### Original documentation follows
+
+# Original documentation follows
+
+**Note: You need to change cleanco to disco everywhere in the following examples.**
+
 # cleanco - clean organization names
 
 ![Python package](https://github.com/psolin/cleanco/workflows/Python%20package/badge.svg)
