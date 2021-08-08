@@ -19,12 +19,12 @@ Examples of use:
 
 from .termdata import terms_by_country, terms_by_type
 from .utils import (
+    find_sublist,
+    normalize_terms,
+    normalized,
+    strip_head,
     strip_punct,
     strip_tail,
-    normalized,
-    normalize_terms,
-    find_sublist,
-    strip_head,
 )
 
 

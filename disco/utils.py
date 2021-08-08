@@ -1,13 +1,12 @@
-import unicodedata
-from .non_nfkd_map import NON_NFKD_MAP
 import re
-
+import unicodedata
 from functools import lru_cache
+
+from .non_nfkd_map import NON_NFKD_MAP
 
 tail_removal_rexp = re.compile(r"[^\.\w]+$", flags=re.UNICODE)
 head_removal_rexp = re.compile(r"^[^\.\w]+", flags=re.UNICODE)
 RE_PUNCT = re.compile(r"[.,-]", flags=re.UNICODE)
-
 
 
 @lru_cache(maxsize=100000)
@@ -20,6 +19,7 @@ def remove_accents(t):
         for c in part
         if unicodedata.category(part) != "Mn"
     )
+
 
 def strip_punct(t):
     return t.replace(".", "").replace(",", "").replace("-", "")

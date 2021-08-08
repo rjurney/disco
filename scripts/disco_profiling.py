@@ -1,6 +1,8 @@
 import argparse
-from disco import prepare_terms, basename
+
 from tqdm import tqdm
+
+from disco import basename, prepare_terms
 
 
 def parse_args():

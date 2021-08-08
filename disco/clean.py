@@ -13,11 +13,12 @@ Daddy & Sons
 
 import functools
 import operator
-from .termdata import terms_by_type, terms_by_country
-from .utils import strip_punct, normalize_terms, strip_tail, normalized, strip_head
 import re
 
 from aca import Automaton
+
+from .termdata import terms_by_country, terms_by_type
+from .utils import normalize_terms, strip_head, strip_tail
 
 
 def get_unique_terms():
@@ -26,33 +27,43 @@ def get_unique_terms():
     cs = functools.reduce(operator.iconcat, terms_by_country.values(), [])
     return set(ts + cs)
 
-RE_IS_CHINESE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]", re.UNICODE)
+
+RE_IS_CHINESE = re.compile(
+    r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]", re.UNICODE
+)
+
 
 def has_chinese(txt):
     cjk_characters = RE_IS_CHINESE.search(txt)
     return cjk_characters is not None
 
+
+def split_fn(txt):
+    return list(txt) if has_chinese(txt) else txt.split()
+
+
 def prepare_terms():
     "construct an optimized term structure for basename extraction"
     terms = get_unique_terms()
     nterms = normalize_terms(terms)
-    split_fn = lambda txt: list(txt) if has_chinese(txt) else txt.split()
     ntermparts = (split_fn(t) for t in nterms)
     # make sure that the result is deterministic, sort terms descending by number of tokens, ascending by names
     sntermparts = sorted(ntermparts, key=lambda x: (-len(x), x))
     return [(len(tp), tp) for tp in sntermparts]
+
 
 def get_automaton():
     terms = prepare_terms()
     map = Automaton()
     valid_tokens = set()
     for len_term, term in terms:
-        map[term] = "." # the label is currently not used
+        map[term] = "."  # the label is currently not used
         valid_tokens.update(term)
     return map, valid_tokens
 
 
 aho, valid_tokens = get_automaton()
+
 
 def basename(name, terms, suffix=True, prefix=False, middle=False, **kwargs):
     "return cleaned base version of the business name"
@@ -62,7 +73,6 @@ def basename(name, terms, suffix=True, prefix=False, middle=False, **kwargs):
     chinese_in_name = has_chinese(name)
 
     name_stripped = strip_head(strip_tail(name))
-    split_fn = lambda txt: list(txt) if chinese_in_name else txt.split()
     nparts = split_fn(name_stripped)
 
     nnparts = list(normalize_terms(nparts))
@@ -72,14 +82,17 @@ def basename(name, terms, suffix=True, prefix=False, middle=False, **kwargs):
     # nnsize = len(nnparts)
 
     # the condition is here for performance optimization (if it was omitted the code would work the same)
-    if len(nnparts) > 0 and ((suffix and nnparts[-1] in valid_tokens) or (prefix and nnparts[0] in valid_tokens)):
+    if len(nnparts) > 0 and (
+        (suffix and nnparts[-1] in valid_tokens)
+        or (prefix and nnparts[0] in valid_tokens)
+    ):
         sorted_matches = sorted(aho.get_matches(nnparts), key=lambda m: -m.end)
 
         if suffix:
             for match in sorted_matches:
                 if match.end == len(nparts):
                     # del nnparts[-len(match.elems):]
-                    del nparts[-len(match.elems):]
+                    del nparts[-len(match.elems) :]
                 else:
                     break
 
@@ -124,4 +137,6 @@ def basename(name, terms, suffix=True, prefix=False, middle=False, **kwargs):
     # return strip_head(
     #     strip_tail("".join(nparts) if chinese_in_name else " ".join(nparts))
     # )
-    return strip_head(strip_tail("".join(nparts) if chinese_in_name else " ".join(nparts)))
+    return strip_head(
+        strip_tail("".join(nparts) if chinese_in_name else " ".join(nparts))
+    )

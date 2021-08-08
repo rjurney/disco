@@ -1,7 +1,7 @@
 # encoding: utf-8
 import pytest
-from disco import matches
-from disco import typesources, countrysources
+
+from disco import countrysources, matches, typesources
 
 print(countrysources())
 

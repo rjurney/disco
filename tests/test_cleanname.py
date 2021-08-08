@@ -1,6 +1,7 @@
 # encoding: utf-8
 import pytest
-from disco import prepare_terms, basename
+
+from disco import basename, prepare_terms
 
 
 @pytest.fixture

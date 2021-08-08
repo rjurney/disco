@@ -344,7 +344,7 @@ terms_by_country = {
         "kda",
         "sd",
         "едноличен търговец",
-        "ад",  #  joint stock company ≈ plc (uk)
+        "ад",  # joint stock company ≈ plc (uk)
         "aktsionerno drujestvo",  # joint stock company ≈ plc (uk)
         "акционерно дружество",  # joint stock company ≈ plc (uk)
         "adsits",  # real estate investment trust
@@ -403,7 +403,7 @@ terms_by_country = {
         "wúxiàn zérèn gōngsī",  # unlimited liability company.
         "有限责任股份公司",  # simplified chinese
         "有限責任股份公司",  # traditional chinese
-        "股份公司", #stock company
+        "股份公司",  # stock company
         "yǒuxiàn zérèn gǔfèn gōngsī",  # share-holding limited liability company.
         "有限责任公司",  # limited liability company / simplified
         "有限責任公司",  # limited liability company / traditional
@@ -411,14 +411,14 @@ terms_by_country = {
         "私人公司",  # private company
         "担保有限公司",  # company limited by guarantee / simplified
         "擔保有限公司",  # company limited by guarantee /traditional
-        "有限公司", # limited company
-        "有限合伙", # limited partnership (simpl)
-        "有限合夥", # limited partnership (trad)
-        "有限责任", # limited liability
-        "集团公司", # group company (holding)
-        "公司集团", # (holding)
-        "集團公司", # holding (trad)
-        "公司集團", # holding (trad)
+        "有限公司",  # limited company
+        "有限合伙",  # limited partnership (simpl)
+        "有限合夥",  # limited partnership (trad)
+        "有限责任",  # limited liability
+        "集团公司",  # group company (holding)
+        "公司集团",  # (holding)
+        "集團公司",  # holding (trad)
+        "公司集團",  # holding (trad)
     ],
     "Columbia": ["s.a.", "e.u.", "s.a.s.", "suc. de descendants", "sca"],
     "Croatia": ["d.d.", "d.o.o.", "obrt"],

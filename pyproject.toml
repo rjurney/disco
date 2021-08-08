@@ -1,0 +1,8 @@
+# Configuration for Black.
+# Example config available: https://github.com/psf/black/blob/main/pyproject.toml
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
