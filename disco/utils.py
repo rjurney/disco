@@ -2,10 +2,15 @@ import unicodedata
 from .non_nfkd_map import NON_NFKD_MAP
 import re
 
+from functools import lru_cache
+
 tail_removal_rexp = re.compile(r"[^\.\w]+$", flags=re.UNICODE)
 head_removal_rexp = re.compile(r"^[^\.\w]+", flags=re.UNICODE)
+RE_PUNCT = re.compile(r"[.,-]", flags=re.UNICODE)
 
 
+
+@lru_cache(maxsize=100000)
 def remove_accents(t):
     """based on https://stackoverflow.com/a/51230541"""
     nfkd_form = unicodedata.normalize("NFKD", t.casefold())
@@ -15,7 +20,6 @@ def remove_accents(t):
         for c in part
         if unicodedata.category(part) != "Mn"
     )
-
 
 def strip_punct(t):
     return t.replace(".", "").replace(",", "").replace("-", "")
@@ -28,7 +32,7 @@ def normalize_terms(terms):
 
 def strip_tail(name):
     "get rid of all trailing non-letter symbols except the dot"
-    match = re.search(tail_removal_rexp, name)
+    match = tail_removal_rexp.search(name)
     if match is not None:
         name = name[: match.span()[0]]
     return name
@@ -36,7 +40,7 @@ def strip_tail(name):
 
 def strip_head(name):
     "get rid of all non-letter symbols except the dot at the beginning"
-    match = re.search(head_removal_rexp, name)
+    match = head_removal_rexp.search(name)
     if match is not None:
         name = name[match.span()[1] :]
     return name

@@ -12,6 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=["disco"],
+    install_requires=["cython", "aca", "tqdm"],
     setup_requires=["pytest-runner"],
     tests_require=["pytest", "tox"],
 )
