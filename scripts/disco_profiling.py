@@ -2,7 +2,7 @@ import argparse
 
 from tqdm import tqdm
 
-from disco import basename, prepare_terms
+from disco.legaltype import search
 
 
 def parse_args():
@@ -25,9 +25,8 @@ def read_names(filepath: str):
 
 
 def clean_all_names(filepath: str):
-    terms = prepare_terms()
     for name in tqdm(read_names(filepath), leave=False):
-        basename(name, terms)
+        search(name)
 
 
 def main():

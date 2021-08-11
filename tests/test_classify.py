@@ -1,20 +1,6 @@
 # encoding: utf-8
-import pytest
 
-from disco import countrysources, matches, typesources
-
-print(countrysources())
-
-
-@pytest.fixture
-def country_sources():
-    return countrysources()
-
-
-@pytest.fixture
-def type_sources():
-    return typesources()
-
+from disco.legaltype import detector
 
 # Tests that demonstrate stuff is classified
 
@@ -28,18 +14,18 @@ basic_class_tests = {
 }
 
 
-def test_basic_country_class(country_sources):
+def test_basic_country_class():
     expected = ["Germany", "Switzerland"]
     errmsg = "cleanup of %s failed"
     for testname, variation in basic_class_tests.items():
-        assert matches(variation, country_sources) == expected, errmsg % testname
+        assert detector.country(variation) == expected, errmsg % testname
 
 
-def test_basic_type_class(type_sources):
+def test_basic_type_class():
     expected = ["Limited"]
     errmsg = "cleanup of %s failed"
     for testname, variation in basic_class_tests.items():
-        assert matches(variation, type_sources) == expected, errmsg % testname
+        assert detector.legaltype(variation) == expected, errmsg % testname
 
 
 # Tests that demonstrate legal forms with multiple terms are classified
@@ -53,29 +39,29 @@ multiterm_class_tests = {
 }
 
 
-def test_basic_country_classifications(country_sources):
+def test_basic_country_classifications():
     expected = ["Czech Republic", "Slovakia"]
     errmsg = "cleanup of %s failed"
     for testname, variation in multiterm_class_tests.items():
-        assert matches(variation, country_sources) == expected, errmsg % testname
+        assert detector.country(variation) == expected, errmsg % testname
 
 
-def test_basic_type_classifications(type_sources):
+def test_basic_type_classifications():
     expected = ["Joint Stock / Unlimited"]
     errmsg = "cleanup of %s failed"
     for testname, variation in multiterm_class_tests.items():
-        assert matches(variation, type_sources) == expected, errmsg % testname
+        assert detector.legaltype(variation) == expected, errmsg % testname
 
 
-def test_accents_in_names(type_sources):
-    assert matches("Polsko spółka z o.o.", type_sources) == ["Limited"]
-    assert matches("Polsko społka z o.o.", type_sources) == ["Limited"]
+def test_accents_in_names():
+    assert detector.legaltype("Polsko spółka z o.o.") == ["Limited"]
+    assert detector.legaltype("Polsko społka z o.o.") == ["Limited"]
 
 
-def test_possible_ambiguities(type_sources):
+def test_possible_ambiguities():
     testname = "Germany gmbh & co. kg"
     errmsg = "cleanup of %s failed"
-    assert matches(testname, type_sources) == ["Limited Partnership"], errmsg % testname
+    assert detector.legaltype(testname) == ["Limited Partnership"], errmsg % testname
 
 
 """

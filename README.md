@@ -12,7 +12,75 @@ Parsing companies through heuristics and keyword matching is like disco dancing.
 
 As of now, `disco` is a heavily enhanced `cleanco` that we want to keep in private (for now). There is a lot of suboptimal parts but we can fix that once it starts being an issue.
 
-### Performance
+## Usage
+A few examples of the most frequent use cases.
+
+**Basic use**
+```python
+from disco.legaltype import search
+company_name = "Some Big Pharma, LLC"
+search(company_name)
+
+>>> {'countries': ['Philippines', 'United States of America'], 'types': ['Limited Liability Company'], 'basename': 'Some Big Pharma'}
+```
+
+*Note: This is most likely what you want to use in big data processing when you want all parts of the result. `basename`, `country`, `legaltype` methods are more or less just wrapper methods so it will not be more efficient.*
+
+-----
+ **Remove legal type hints (suffix or prefix) and get only base name:**
+
+Either use the previous example and get `countries` or run the following:
+
+```python
+from disco.legaltype import basename
+company_name = "Some Big Pharma, LLC"
+basename(company_name)
+
+>>> 'Some Big Pharma'
+```
+
+-----
+
+**Detection of legal types using only either prefixes or suffixes**
+Normally, `disco` searches for legal forms from both directions (using both prefixes and suffixes). You can change this through arguments:
+
+```python
+from disco.legaltype import basename
+company_name = "Some Big Pharma, LLC"
+basename(company_name, prefix=True, suffix=False)
+
+>>> 'Some Big Pharma, LLC' # LLC was ignored because of `suffix=False`
+```
+
+-----
+
+**Detection of legal entity type only**
+
+Use the first basic example and get `types` or run the following:
+
+```python
+from disco.legaltype import legaltype
+company_name = "Some Big Pharma, LLC"
+legaltype(company_name)
+
+>>> ['Limited Liability Company']
+```
+
+-----
+
+**Detection of jurisdiction based on legal entity**
+
+Use the first basic example and get `countries` or run the following:
+
+```python
+from disco.legaltype import country
+company_name = "Some Big Pharma, LLC"
+country(company_name)
+
+>>> ['Philippines', 'United States of America']
+```
+
+### Quality
 
 As of July 29, `disco` is able to identify 37.62 % more company patterns in a list of 50k randomly sampled company names (sampled from Sayari) when compared to `cleanco`. Specifically, `disco` identifies 20375 patterns while `cleanco` identifies 14805.
 
@@ -43,6 +111,10 @@ There is still space for improvement for Cyrillic names and `disco` should be im
 
 ---
 
+## Links:
+
+- Wikipedia: [Types of Business Entity article](http://en.wikipedia.org/wiki/Types_of_business_entity)
+
 # Original documentation follows
 
 **Note: You need to change cleanco to disco everywhere in the following examples.**
@@ -72,70 +144,3 @@ Just use 'pip install cleanco' if you have pip installed (as most systems do). O
 
 - Mac: `cd` into it, and enter `sudo python setup.py install` along with your system password.
 - Windows: Same thing but without `sudo`.
-
-## How does it work?
-
-Let's look at some sample code. To get the base name of a business without legal suffix:
-
-    >>> from cleanco import prepare_terms, basename
-    >>> business_name = "Some Big Pharma, LLC"
-    >>> terms = prepare_terms()
-    >>> basename(business_name, terms, prefix=False, middle=False, suffix=True)
-    >>> 'Some Big Pharma'
-
-Note that sometimes a name may have e.g. two different suffixes after one another. The cleanco
-term data covers many of these but you may want to run `basename()` twice, just in case.
-
-To get the business type or country:
-
-    >>> from cleanco import typesources, matches
-    >>> classification_sources = typesources()
-    >>> matches("Some Big Pharma, LLC", classification_sources)
-    ['Limited Liability Company']
-
-To get the possible countries of jurisdiction:
-
-    >>> from cleanco import countrysources, matches
-    >>> classification_sources = countrysources()
-    >>> matches("Some Big Pharma, LLC", classification_sources) ´
-    ['United States of America', 'Philippines']
-
-The legacy (versions < 2.0) way can still be used, too, but will eventually be discontinued:
-
-Import the utility class:
-
-    >>> from cleanco import cleanco
-
-Prepare a string of a company name that you want to process:
-
-    >>> business_name = "Some Big Pharma, LLC"
-
-Throw it into the instance:
-
-    >>> x = cleanco(business_name)
-
-You can now get the company types:
-
-    >>> x.type()
-    ['Limited Liability Company']
-
-...the possible countries...
-
-    >>> x.country()
-    ['United States of America', 'Philippines']
-
-...and a clean version of the company name.
-
-    >>> x.clean_name()
-    'Some Big Pharma'
-
-## Are there bugs?
-
-See the issue tracker. If you find a bug or have enhancement suggestion or question, please file an issue and provide a PR if you can. For example, some of the company suffixes may be incorrect or there may be suffixes missing.
-
-To run tests, simply install the package and run `python setup.py test`. To run tests on multiple Python versions, install `tox` and run it (see the provided tox.ini).
-
-## Special thanks to:
-
-- Wikipedia's [Types of Business Entity article](http://en.wikipedia.org/wiki/Types_of_business_entity), where I spent hours of research.
-- Contributors: [Petri Savolainen](https://github.com/petri)
