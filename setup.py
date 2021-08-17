@@ -8,6 +8,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="disco",
+    version="0.1.1",
     description="Python library to process company names",
     long_description=long_description,
     long_description_content_type="text/markdown",
