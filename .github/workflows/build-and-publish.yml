@@ -1,0 +1,56 @@
+name: build-and-publish-disco
+
+# Controls when the action will run.
+on:
+  release:
+    types: [published]
+    branches: [main]
+
+# TODO Condition this on the success of checks
+# on: workflow_run: completed seems like the right direction
+
+env:
+  TWINE_USERNAME: aws
+  CODEARTIFACT_AUTH_TOKEN: unset
+  CODEARTIFACT_DOMAIN: deepdiscovery
+  CODEARTIFACT_REPOSITORY: DeepDiscovery
+  CODEARTIFACT_PYPI_REPOSITORY_URL: unset
+
+jobs:
+  build-and-publish:
+    name: build-and-publish
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: set-twine-to-codeartifact
+        id: check-env
+        run: |
+          echo preparing env variables
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ env.CODEARTIFACT_DOMAIN }}  --query authorizationToken --duration-seconds 900 --output text)" >> $GITHUB_ENV
+          echo "CODEARTIFACT_PYPI_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain ${{ env.CODEARTIFACT_DOMAIN }} --repository ${{ env.CODEARTIFACT_REPOSITORY }} --format pypi --query repositoryEndpoint --output text)" >> $GITHUB_ENV
+
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: ${{ env.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ env.CODEARTIFACT_AUTH_TOKEN }}
+          TWINE_REPOSITORY_URL: ${{ env.CODEARTIFACT_PYPI_REPOSITORY_URL }}
+        run: |
+          token=$(aws codeartifact get-authorization-token --domain deepdiscovery --query authorizationToken --duration-seconds 900 --output text)
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
