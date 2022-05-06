@@ -32,25 +32,47 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install setuptools wheel twine
-      - name: Configure AWS Credentials
+
+      - name: Configure AWS Credentials dev
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_DEV_USER_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_USER_SECRET }}
           aws-region: us-west-2
-      - name: set-twine-to-codeartifact
-        id: check-env
+      - name: set-twine-to-codeartifact dev
         run: |
           echo preparing env variables
           echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ env.CODEARTIFACT_DOMAIN }}  --query authorizationToken --duration-seconds 900 --output text)" >> $GITHUB_ENV
           echo "CODEARTIFACT_PYPI_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain ${{ env.CODEARTIFACT_DOMAIN }} --repository ${{ env.CODEARTIFACT_REPOSITORY }} --format pypi --query repositoryEndpoint --output text)" >> $GITHUB_ENV
 
-      - name: Build and publish
+      - name: Build
+        run: |
+          python setup.py sdist bdist_wheel
+
+      - name: Publish dev
         env:
           TWINE_USERNAME: ${{ env.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ env.CODEARTIFACT_AUTH_TOKEN }}
           TWINE_REPOSITORY_URL: ${{ env.CODEARTIFACT_PYPI_REPOSITORY_URL }}
         run: |
-          token=$(aws codeartifact get-authorization-token --domain deepdiscovery --query authorizationToken --duration-seconds 900 --output text)
-          python setup.py sdist bdist_wheel
+          twine upload dist/*
+
+      # Legacy codeartifact publish part, may be removed, after everything is migrated to dev project (https://deep-discovery.atlassian.net/browse/PRO-368?atlOrigin=eyJpIjoiMjZiYmIyZDkwNmY1NGRlZWFiY2I1MDA3NDFiZGRjOTAiLCJwIjoiaiJ9)
+      - name: Configure AWS Credentials legacy
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: set-twine-to-codeartifact dev
+        run: |
+          echo preparing env variables
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ env.CODEARTIFACT_DOMAIN }}  --query authorizationToken --duration-seconds 900 --output text)" >> $GITHUB_ENV
+          echo "CODEARTIFACT_PYPI_REPOSITORY_URL=$(aws codeartifact get-repository-endpoint --domain ${{ env.CODEARTIFACT_DOMAIN }} --repository ${{ env.CODEARTIFACT_REPOSITORY }} --format pypi --query repositoryEndpoint --output text)" >> $GITHUB_ENV
+      - name: Publish legacy
+        env:
+          TWINE_USERNAME: ${{ env.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ env.CODEARTIFACT_AUTH_TOKEN }}
+          TWINE_REPOSITORY_URL: ${{ env.CODEARTIFACT_PYPI_REPOSITORY_URL }}
+        run: |
           twine upload dist/*
